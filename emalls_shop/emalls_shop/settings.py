@@ -90,3 +90,37 @@ ROBOTSTXT_OBEY = True
 # Set settings whose default value is deprecated to a future-proof value
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+
+
+# to add django  settings:
+
+import sys  
+import os  
+import django  
+
+DJANGO_PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(DJANGO_PROJECT_PATH)  
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'emalls.settings')  
+
+django.setup()  
+
+# ITEM_PIPELINES = {
+#     'emalls_shop.pipelines.LaptopPipeline': 300,
+#     'emalls_shop.pipelines.PhonePipeline': 300,
+# }
+
+# Save what every pipeline returns in a json file.
+FEEDS = {
+    'shop_informations.json': {
+        'format': 'json',
+        'encoding': 'utf8',
+        'store_empty': False,
+        'indent': 4,
+    }
+    # 'shop_details.json': {
+    #     'format': 'json',
+    #     'encoding': 'utf8',
+    #     'store_empty': False,
+    #     'indent': 4,
+    # }
+}
