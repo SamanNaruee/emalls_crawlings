@@ -25,7 +25,10 @@ class EmallsApiSpider(scrapy.Spider):
     def parse(self, response):  
         # Load the JSON data from the response  
         data = json.loads(response.body)  
-        yield data
+        data = data.get('lstsearchresualt', [])
+        product1 = data[0]
+        print(product1)
+        yield product1
         # Process the JSON data (example: extracting product information)  
         # for product in data.get('lstsearchresualt', []):  # Assuming 'products' is a key in the JSON  
         #     yield {  
