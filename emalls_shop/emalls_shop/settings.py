@@ -104,10 +104,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'emalls.settings')
 
 django.setup()  
 
-# ITEM_PIPELINES = {
-#     'emalls_shop.pipelines.LaptopPipeline': 300,
-#     'emalls_shop.pipelines.PhonePipeline': 300,
-# }
+ITEM_PIPELINES = {
+    'emalls_shop.pipelines.EmallsShopPipeline': 300,
+}
 
 # Save what every pipeline returns in a json file.
 FEEDS = {
@@ -117,10 +116,33 @@ FEEDS = {
         'store_empty': False,
         'indent': 4,
     }
-    # 'shop_details.json': {
-    #     'format': 'json',
-    #     'encoding': 'utf8',
-    #     'store_empty': False,
-    #     'indent': 4,
-    # }
 }
+
+
+
+DEFAULT_REQUEST_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/javascript, */*; q=0.01',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Content-Type': 'application/json',
+    'Origin': 'https://emalls.ir',
+    'Referer': 'https://emalls.ir/',
+}
+
+# --- Enable Cookies ---
+COOKIES_ENABLED = True
+
+# --- Handle 503 Errors with Retries ---
+RETRY_ENABLED = True
+RETRY_TIMES = 5  # Retry 5 times on failure
+RETRY_HTTP_CODES = [503, 500, 502, 504]  # Retry on server errors
+
+
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_START_DELAY = 1  # Initial delay
+AUTOTHROTTLE_MAX_DELAY = 5    # Max delay
+AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+
+DOWNLOAD_DELAY = 2  # 2-second delay between requests
+
+ROBOTSTXT_OBEY = False
