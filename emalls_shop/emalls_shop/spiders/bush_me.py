@@ -19,20 +19,33 @@ class BushMeSpider(scrapy.Spider):
     """
     name = "bush_me"
     allowed_domains = ["emalls.ir"]
-    start_urls = ["https://emalls.ir/Shop/35316/"]
+    def start_requests(self):
+        current_shops = ['35319', '35316']
+        for shop in current_shops:
+            start_urls = [f"https://emalls.ir/Shop/{shop}/"]
+            yield scrapy.Request(
+                url=start_urls[0],
+                callback=self.parse,
+            )   
     def parse(self, response):   
-        print(Fore.BLUE + f"{response.css('.CommentItem').getall()[0]}" + Style.RESET_ALL)
+        
         shop_informations = {
+            'shop_id': response.url.split("/")[-2],
+            'shop_selling_type': response.css("#ContentPlaceHolder1_rptShops_LblShopType_0::text").get(),
             'cooperation_status_with_emalls': response.css("#ContentPlaceHolder1_lblshopstatus::text").get(),
             'name_of_person_in_charge': response.css("#ContentPlaceHolder1_lblMasool1::text").get(), 
             'phone_number': response.css("#ContentPlaceHolder1_lblTelephone1::text").get(), 
             'shop_address': response.css("#ContentPlaceHolder1_lblAddress1::text").get(),
             'shop_all_products_target_url': response.css("#DivPartProducts a::attr(href)").get(),
             'shop_comments': [
-                    {   
-                        'comment_date': comment.css(f"#ContentPlaceHolder1_rptComments_lblDate_{i}::text").get(),
-                    }
-                for i, comment in response.css(".CommentItem")
+                {
+                    'comment_date': comment.css(f"#ContentPlaceHolder1_rptComments_lblDate_{i}::text").get(default='').strip(),
+                    'name': comment.css('span.name::text').get(default='').strip(),
+                    'role': comment.css('span.TheOrange.semat::text').get(default='').strip(),
+                    'comment': comment.css('span.Text::text').get(default='').strip(),
+                    'comment_star': comment.css(f'#ContentPlaceHolder1_rptComments_lblRate_{i}::text').get(default='').strip(),
+                } 
+                for i, comment in enumerate(response.css(".CommentItem"))
             ],
             'shop_crawled_data': response.css("#CtrlFooterLinks_LblDate::text").get(),
             'shop_current_city': response.css("#ContentPlaceHolder1_lblLocation::text").get(),
@@ -46,5 +59,5 @@ class BushMeSpider(scrapy.Spider):
             'shop_Enamad_sign': response.css("#ContentPlaceHolder1_lblNamad::text").get(),
         }
         yield shop_informations
-        # print(Fore.BLUE + f"{comments}" + Style.RESET_ALL)
+
             
