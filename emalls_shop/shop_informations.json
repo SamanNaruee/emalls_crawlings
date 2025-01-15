@@ -4363,4 +4363,25 @@
     "shop_website": "https://boschme.com/",
     "shop_Enamad_sign": "دارد (یک ستاره) معتبر تا 5 ماه و 27 روز"
 }
+][
+{
+    "shop_id": "emalls.ir",
+    "shop_selling_type": "اینترنتی",
+    "cooperation_status_with_emalls": null,
+    "name_of_person_in_charge": null,
+    "phone_number": null,
+    "shop_address": null,
+    "shop_all_products_target_url": null,
+    "shop_comments": [],
+    "shop_crawled_data": "چهارشنبه ۲۶ دی",
+    "shop_current_city": null,
+    "shop_duration_of_cooperation_with_emalls": null,
+    "shop_email": null,
+    "shop_img_icon": null,
+    "shop_name": "لیستفروشنده‌های",
+    "shop_score": null,
+    "shop_social_media_handles": [],
+    "shop_website": null,
+    "shop_Enamad_sign": null
+}
 ]

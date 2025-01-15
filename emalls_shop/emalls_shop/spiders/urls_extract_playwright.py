@@ -1,49 +1,67 @@
 """
-Playwright script to extract all categories from emalls.ir
+Playwright script to extract all shop URLs from emalls.ir/Shops/
 To run this script you need to have playwright installed, if not
 you can install it by running `pip install playwright`
 
-Then you can run this script by running `python urls_extract_playwright.py`
-
-This script will open a browser and go to emalls.ir and wait for the main menu to appear
-Then it will click on the main menu and wait for the dropdown to appear
-After that it will extract all categories from the dropdown and print their names and links
+This script will:
+1. Open a browser and go to emalls.ir/Shops/
+2. Wait for the shop cards to load
+3. Extract all shop URLs
 """
 import asyncio
+import json
 from playwright.async_api import async_playwright
 
-async def extract_categories():
-    links = {}
-    url = "https://emalls.ir/"
+async def extract_shop_urls():
+    shop_urls = []
+    url = "https://emalls.ir/Shops/"
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         context = await browser.new_context()
         page = await context.new_page()
 
-        # Go to the website
+        # Go to the shops page
         await page.goto(url, wait_until="networkidle")
 
         try:
-            await page.wait_for_selector("span[data-cro-id='header-main-menu']", timeout=10000)
-            await page.click("span[data-cro-id='header-main-menu']")
-            await page.wait_for_timeout(2000)  # Wait for the dropdown to appear
+            # Wait for shop cards to load
+            await page.wait_for_selector("div.shop", timeout=30000)
+            
+            # Extract all shop URLs and names
+            shops = await page.query_selector_all("div.shop")
+            
+            for shop in shops:
+                # Get the shop name
+                name_element = await shop.query_selector("h3 a.item-title-text")
+                shop_name = await name_element.text_content() if name_element else "Unknown"
+                
+                # Get the shop URL
+                url_element = await shop.query_selector("a.shop-ax")
+                if url_element:
+                    href = await url_element.get_attribute("href")
+                    if href and "/Shop/" in href:
+                        full_url = f"https://emalls.ir{href}"
+                        # Get additional info
+                        shop_type = await shop.query_selector("span.value")
+                        shop_type_text = await shop_type.text_content() if shop_type else "Unknown"
+                        
+                        print(f"Shop: {shop_name.strip()} - Type: {shop_type_text.strip()} - URL: {full_url}")
+                        shop_urls.append({
+                            "name": shop_name.strip(),
+                            "url": full_url,
+                            "type": shop_type_text.strip()
+                        })
+                    
         except Exception as e:
-            print(f"Error clicking main menu: {e}")
+            print(f"Error extracting shop URLs: {e}")
+        finally:
             await browser.close()
-            return
+            
+    # Save all urls in a json file to use later
+    with open("shop_urls.json", "w", encoding="utf-8") as f:
+        json.dump(shop_urls, f, indent=4, ensure_ascii=False)
+    return shop_urls
 
-        try:
-            categories = await page.query_selector_all('a[href^="/Shops/"]')  # Extract all links that start with /Shops/
-            for category in categories:
-                name = await category.text_content()
-                link = await category.get_attribute("href")
-                print(f"{name.strip()}: {link}")
-                links[name.strip()] = link
-        except Exception as e:
-            print(f"Error extracting categories: {e}")
-
-        await browser.close()    
-
-
-asyncio.run(extract_categories())
+if __name__ == "__main__":
+    shop_urls = asyncio.run(extract_shop_urls())
