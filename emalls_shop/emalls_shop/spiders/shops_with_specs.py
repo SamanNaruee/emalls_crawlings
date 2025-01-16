@@ -23,7 +23,10 @@ class ShopsWithSpecsSpider(scrapy.Spider):
             )
 
     def page_detail_parse(self, response):
-        for id in range(48):
+        shop_divs = response.css('div.row > div')
+        total_shops = len(shop_divs)
+        
+        for id in range(total_shops):
             shop_url_partial = response.css(f"#ContentPlaceHolder1_rptShops_hlkTitle_{id}::attr(href)").get()
             if shop_url_partial:
                 full_shop_url = f'https://emalls.ir/{shop_url_partial}'

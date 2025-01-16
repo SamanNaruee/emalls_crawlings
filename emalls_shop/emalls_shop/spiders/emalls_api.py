@@ -17,7 +17,7 @@ class EmallsApiSpider(scrapy.Spider):
             "shop": "21766"  
         }  
         
-        for page in range(1, 6):  
+        for page in range(1, 6):  # remove this hardcode
             form_data["currenturl"] += f"~page~{page}"  
 
             yield scrapy.FormRequest(  
