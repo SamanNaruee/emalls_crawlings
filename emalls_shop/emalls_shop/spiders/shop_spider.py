@@ -1,32 +1,25 @@
 import scrapy
 from colorama import Fore, Style
 
-class BushMeSpider(scrapy.Spider):
+class ShopSpecSpider(scrapy.Spider):
     """
-    sometimes we must wait to page fully load before crawling, we can use the following:
-    we can also add a delay to our spider to make it slower. 
-    in crawling, sometimes we need to get an element's attributes.
-    but the content might be loaded dynamically via JavaScript
-    we can use SelectorGadget to select an element and then get it's attributes:
-        element = response.css("the selected css pattern")
-        element.attrib
-            {
-                'id': 'ContentPlaceHolder1_HlkWebsite1',
-                'class': 'ex-link-icon link-website',
-                'rel': 'noreferrer noopener nofollow',
-                'href': 'https://boschme.com/'
-        }
+    add this:
+            shenase rahgiri for each shop.
     """
-    name = "bush_me"
+    
+    name = "shop_specifications"
     allowed_domains = ["emalls.ir"]
+
+    def __init__(self, shop_token, *args, **kwargs):
+        super(ShopSpecSpider, self).__init__(*args, **kwargs)
+        self.shop_token = shop_token
+        
     def start_requests(self):
-        current_shops = ['35319', '35316'] # TODO finding the current page and then finding token must not be hardcoded.
-        for shop in current_shops:
-            start_urls = [f"https://emalls.ir/Shop/{shop}/"]
-            yield scrapy.Request(
-                url=start_urls[0],
-                callback=self.parse,
-            )   
+        start_urls = [f"https://emalls.ir/Shop/{self.shop_token}/"]
+        yield scrapy.Request(
+            url=start_urls[0],
+            callback=self.parse,
+        )
     def parse(self, response):   
         
         shop_informations = {
