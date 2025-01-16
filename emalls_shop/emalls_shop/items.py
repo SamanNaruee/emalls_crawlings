@@ -12,3 +12,24 @@ class EmallsShopItems(scrapy.Item):
     token = Field()
     url = Field()
     
+
+
+
+class ProductItem(scrapy.Item):
+    id = Field()
+    title = Field()
+    titlefa = Field()
+    link = Field()
+    image = Field()
+    category = Field()
+    rate = Field()
+    offcount = Field()
+    price = Field()
+    pprice = Field()
+    discountpercent = Field()
+    maxprice = Field()
+    lupdate = Field()
+    buyTitle = Field()
+    buyLink = Field()
+    spec = Field()
+    used = Field()

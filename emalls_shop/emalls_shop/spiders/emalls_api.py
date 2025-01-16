@@ -14,26 +14,43 @@ class EmallsApiSpider(scrapy.Spider):
             "shop": "21766"  
         }  
         
-        # Send a POST request with the form data  
-        yield scrapy.FormRequest(  
-            url=self.start_urls[0],  
-            method='POST',  
-            formdata=form_data,  
-            callback=self.parse  
-        )  
+        for page in range(1, 6):  
+            form_data["currenturl"] += f"~page~{page}"  
+
+            yield scrapy.FormRequest(  
+                url=self.start_urls[0],  
+                method='POST',  
+                formdata=form_data,  
+                callback=self.parse  
+            )  
 
     def parse(self, response):  
         # Load the JSON data from the response  
         data = json.loads(response.body)  
         data = data.get('lstsearchresualt', [])
-        product1 = data[0]
-        print(product1)
-        yield product1
-        # Process the JSON data (example: extracting product information)  
-        # for product in data.get('lstsearchresualt', []):  # Assuming 'products' is a key in the JSON  
-        #     yield {  
-        #         'name': product.get('name'),  
-        #         'price': product.get('price'),  
-        #         'link': product.get('link'),  
-        #         # Add other fields as necessary  
-        #     }
+        products = []   
+        for product in data:
+            sent_product = {
+                'id': product.get('id'),  
+                'title': product.get('title'),  
+                'titlefa': product.get('titlefa'),  
+                'link': product.get('link'),  
+                'image': product.get('image'),  
+                'category': product.get('category'),  
+                'rate': product.get('rate'),  
+                'offcount': product.get('offcount'),  
+                'price': product.get('price'),  
+                'pprice': product.get('pprice'),  
+                'discountpercent': product.get('discountpercent'),  
+                'maxprice': product.get('maxprice'),  
+                'lupdate': product.get('lupdate'),  
+                'buyTitle': product.get('buyTitle'),  
+                'buyLink': product.get('buyLink'),  
+                'spec': product.get('spec'),  
+                'used': product.get('used'),                  
+            }
+            
+            products.append(sent_product)
+        yield {
+            'products': products,
+        }
