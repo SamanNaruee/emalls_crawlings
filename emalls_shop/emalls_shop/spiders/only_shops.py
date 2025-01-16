@@ -27,7 +27,7 @@ class OnlyShopsSpider(scrapy.Spider):
     
     def page_detail_parse(self, response):
         shops = {}
-        for id in range(48):
+        for id in range(48): # remove this hardcode : 
             shop = {}
             shop[f'shop_img'] = response.css(f'#ContentPlaceHolder1_rptShops_imgLogo_{id}::attr(src)').get()
             shop['shop_title'] = response.css(f"#ContentPlaceHolder1_rptShops_hlkTitle_{id}::text").get()
