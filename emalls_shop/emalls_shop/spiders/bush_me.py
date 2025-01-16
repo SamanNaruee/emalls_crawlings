@@ -20,7 +20,7 @@ class BushMeSpider(scrapy.Spider):
     name = "bush_me"
     allowed_domains = ["emalls.ir"]
     def start_requests(self):
-        current_shops = ['35319', '35316']
+        current_shops = ['35319', '35316'] # TODO finding the current page and then finding token must not be hardcoded.
         for shop in current_shops:
             start_urls = [f"https://emalls.ir/Shop/{shop}/"]
             yield scrapy.Request(
