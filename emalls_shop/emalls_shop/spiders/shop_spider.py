@@ -3,8 +3,11 @@ from colorama import Fore, Style
 
 class ShopSpecSpider(scrapy.Spider):
     """
-    add this:
-            shenase rahgiri for each shop.
+    This spider crawls the specifications of a given shop from emalls.ir.
+    To run this spider, you should provide the shop_token as an argument. For example:
+        scrapy crawl shop_specifications -a shop_token=35319
+        
+    Replace 35319 with the shop_token you want to crawl.
     """
     
     name = "shop_specifications"
