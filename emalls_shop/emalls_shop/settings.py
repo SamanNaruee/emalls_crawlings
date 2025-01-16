@@ -135,14 +135,19 @@ COOKIES_ENABLED = True
 # --- Handle 503 Errors with Retries ---
 RETRY_ENABLED = True
 RETRY_TIMES = 5  # Retry 5 times on failure
-RETRY_HTTP_CODES = [503, 500, 502, 504]  # Retry on server errors
+RETRY_HTTP_CODES = [503, 500, 502, 504, 403]  # Retry on server errors
 
+# settings.py
+CONCURRENT_REQUESTS = 4  # Default is 16
 
-# AUTOTHROTTLE_ENABLED = True
-# AUTOTHROTTLE_START_DELAY = 1  # Initial delay
-# AUTOTHROTTLE_MAX_DELAY = 5    # Max delay
-# AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_START_DELAY = 1  # Initial delay
+AUTOTHROTTLE_MAX_DELAY = 10    # Max delay
+AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 
-DOWNLOAD_DELAY = 0.003
+DOWNLOAD_DELAY = 2
 
 ROBOTSTXT_OBEY = False
+
+# settings.py
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
