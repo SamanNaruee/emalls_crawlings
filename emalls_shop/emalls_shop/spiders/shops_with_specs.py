@@ -5,12 +5,22 @@ from memory_profiler import profile
 
 class ShopsWithSpecsSpider(scrapy.Spider):
     custom_settings = {
-        'MEMUSAGE_ENABLED': True,
-        'MEMUSAGE_LIMIT_MB': 512,
-        'MEMUSAGE_WARNING_MB': 384,
-        'MEMUSAGE_CHECK_INTERVAL_SECONDS': 60
+        'CONCURRENT_REQUESTS': 16,  # Maximum number of concurrent requests across all domains
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 8,  # Maximum number of concurrent requests per domain
+        'DOWNLOAD_DELAY': 1,  # Wait 1 second between consecutive requests to same domain
+        'RANDOMIZE_DOWNLOAD_DELAY': True,  # Add random delay between requests to avoid detection
+        'MEMUSAGE_ENABLED': True,  # Enable memory usage monitoring
+        'MEMUSAGE_LIMIT_MB': 512,  # Stop spider if memory usage exceeds 512MB
+        'MEMUSAGE_WARNING_MB': 384,  # Warn when memory usage exceeds 384MB
+        'MEMUSAGE_CHECK_INTERVAL_SECONDS': 60,  # Check memory usage every 60 seconds
+        'HTTPCACHE_ENABLED': True,  # Enable HTTP caching
+        'HTTPCACHE_EXPIRATION_SECS': 3600,  # Cache responses for 1 hour
+        'HTTPCACHE_DIR': 'httpcache',  # Directory to store HTTP cache
+        'AUTOTHROTTLE_ENABLED': True,  # Enable automatic throttling
+        'AUTOTHROTTLE_START_DELAY': 1,  # Initial download delay
+        'AUTOTHROTTLE_MAX_DELAY': 3,  # Maximum download delay
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 8  # Target average number of concurrent requests
     }
-
     name = "sws"
     allowed_domains = ["emalls.ir"]
     start_urls = ["https://emalls.ir/Shops/"]
