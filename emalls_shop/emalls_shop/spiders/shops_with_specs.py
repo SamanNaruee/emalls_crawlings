@@ -1,8 +1,16 @@
 import scrapy
 from .logger_me import custom_log
 from django.utils import timezone
+from memory_profiler import profile
 
 class ShopsWithSpecsSpider(scrapy.Spider):
+    custom_settings = {
+        'MEMUSAGE_ENABLED': True,
+        'MEMUSAGE_LIMIT_MB': 512,
+        'MEMUSAGE_WARNING_MB': 384,
+        'MEMUSAGE_CHECK_INTERVAL_SECONDS': 60
+    }
+
     name = "sws"
     allowed_domains = ["emalls.ir"]
     start_urls = ["https://emalls.ir/Shops/"]
@@ -13,6 +21,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
             callback=self.parse,
         )
 
+    @profile
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
