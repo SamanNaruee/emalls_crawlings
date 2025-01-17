@@ -5,9 +5,16 @@ from memory_profiler import profile
 
 class ShopsWithSpecsSpider(scrapy.Spider):
     custom_settings = {
+        # Enable memory usage monitoring
         'MEMUSAGE_ENABLED': True,
+        
+        # Stop the spider if memory usage exceeds 512MB
         'MEMUSAGE_LIMIT_MB': 512,
+        
+        # Send a warning email when memory usage reaches 384MB
         'MEMUSAGE_WARNING_MB': 384,
+        
+        # Check memory usage every 60 seconds
         'MEMUSAGE_CHECK_INTERVAL_SECONDS': 60
     }
 
