@@ -9,16 +9,16 @@ from concurrent.futures import ThreadPoolExecutor
 class ShopsWithSpecsSpider(scrapy.Spider):
     
     custom_settings = {
-        'DOWNLOAD_DELAY': 0.001,
-        'CONCURRENT_REQUESTS': 100,
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 100,
-        'DOWNLOAD_TIMEOUT': 15,
-        'REACTOR_THREADPOOL_MAXSIZE': 20,
-        'LOG_LEVEL': 'INFO',
-        'COOKIES_ENABLED': False,
-        'RETRY_ENABLED': False,
-        'DOWNLOAD_FAIL_ON_DATALOSS': False,
-        'CONCURRENT_ITEMS': 200
+        'DOWNLOAD_DELAY': 0.0005,                   # Delay between requests in seconds
+        'CONCURRENT_REQUESTS': 200,                 # Maximum number of concurrent requests across all domains
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 200,      # Maximum number of concurrent requests per domain
+        'DOWNLOAD_TIMEOUT': 10,                     # Maximum time in seconds to wait for a response
+        'REACTOR_THREADPOOL_MAXSIZE': 40,           # Maximum size of Twisted reactor thread pool
+        'LOG_LEVEL': 'INFO',                        # Level of logging detail (INFO level shows general execution info)
+        'COOKIES_ENABLED': False,                   # Disable cookie handling to reduce overhead
+        'RETRY_ENABLED': False,                     # Disable automatic retry of failed requests
+        'DOWNLOAD_FAIL_ON_DATALOSS': False,         # handle fail of incomplete responses
+        'CONCURRENT_ITEMS': 400,                    # Maximum number of items that can be processed in parallel
     }
     
     name = "sws"
