@@ -4,11 +4,21 @@ from .logger_me import custom_log
 import datetime
 from memory_profiler import profile
 from time import perf_counter
+from concurrent.futures import ThreadPoolExecutor
 
 class ShopsWithSpecsSpider(scrapy.Spider):
     
     custom_settings = {
-        'DOWNLOAD_DELAY': 0.01,
+        'DOWNLOAD_DELAY': 0.001,
+        'CONCURRENT_REQUESTS': 100,
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 100,
+        'DOWNLOAD_TIMEOUT': 15,
+        'REACTOR_THREADPOOL_MAXSIZE': 20,
+        'LOG_LEVEL': 'INFO',
+        'COOKIES_ENABLED': False,
+        'RETRY_ENABLED': False,
+        'DOWNLOAD_FAIL_ON_DATALOSS': False,
+        'CONCURRENT_ITEMS': 200
     }
     
     name = "sws"
@@ -17,8 +27,6 @@ class ShopsWithSpecsSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # initialize performance tracking variables
         self.start_time = perf_counter()
         self.page_times = {}
         self.shop_times = {}
@@ -27,32 +35,36 @@ class ShopsWithSpecsSpider(scrapy.Spider):
         yield scrapy.Request(
             url=self.start_urls[0],
             callback=self.parse,
+            dont_filter=True
         )
 
     @profile
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
-        total_pages = 100 # remove this hardcode
-        for page in range(1, total_pages + 1):
-            url = f"https://emalls.ir/Shops/page.{page}"
+        total_pages = 100  # Adjusted for all pages
+        
+        # Generate all page requests at once
+        urls = [f"https://emalls.ir/Shops/page.{page}" for page in range(1, total_pages + 1)]
+        for url in urls:
             yield scrapy.Request(
                 url=url,
                 callback=self.page_detail_parse,
-                meta={'current_page': page}
+                meta={'current_page': urls.index(url) + 1},
+                dont_filter=True,
+                priority=10
             )
 
     def page_detail_parse(self, response):
         current_page = response.meta['current_page']
-        shop_divs = response.css('div.row > div')
         
         for id in range(48):
             shop_url_partial = response.css(f"#ContentPlaceHolder1_rptShops_hlkTitle_{id}::attr(href)").get()
             if shop_url_partial:
                 full_shop_url = f'https://emalls.ir/{shop_url_partial}'
                 
-                # first collect basic info
                 basic_info = {
+                    'senfi_number': 'Unassigned_yet',
                     'shop_was_in_page': current_page,
                     'shop_img': response.css(f'#ContentPlaceHolder1_rptShops_imgLogo_{id}::attr(src)').get(),
                     'shop_title': response.css(f"#ContentPlaceHolder1_rptShops_hlkTitle_{id}::text").get(),
@@ -65,7 +77,8 @@ class ShopsWithSpecsSpider(scrapy.Spider):
                     url=full_shop_url,
                     callback=self.parse_shop_details,
                     meta={'basic_info': basic_info},
-                    dont_filter=True
+                    dont_filter=True,
+                    priority=5
                 )
 
     def parse_shop_details(self, response):
