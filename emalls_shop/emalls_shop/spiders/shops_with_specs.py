@@ -1,29 +1,27 @@
+from winreg import REG_FULL_RESOURCE_DESCRIPTOR
 import scrapy
 from .logger_me import custom_log
-from django.utils import timezone
+import datetime
 from memory_profiler import profile
+from time import perf_counter
 
 class ShopsWithSpecsSpider(scrapy.Spider):
+    
     custom_settings = {
-        'CONCURRENT_REQUESTS': 16,  # Maximum number of concurrent requests across all domains
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 8,  # Maximum number of concurrent requests per domain
-        'DOWNLOAD_DELAY': 1,  # Wait 1 second between consecutive requests to same domain
-        'RANDOMIZE_DOWNLOAD_DELAY': True,  # Add random delay between requests to avoid detection
-        'MEMUSAGE_ENABLED': True,  # Enable memory usage monitoring
-        'MEMUSAGE_LIMIT_MB': 512,  # Stop spider if memory usage exceeds 512MB
-        'MEMUSAGE_WARNING_MB': 384,  # Warn when memory usage exceeds 384MB
-        'MEMUSAGE_CHECK_INTERVAL_SECONDS': 60,  # Check memory usage every 60 seconds
-        'HTTPCACHE_ENABLED': True,  # Enable HTTP caching
-        'HTTPCACHE_EXPIRATION_SECS': 3600,  # Cache responses for 1 hour
-        'HTTPCACHE_DIR': 'httpcache',  # Directory to store HTTP cache
-        'AUTOTHROTTLE_ENABLED': True,  # Enable automatic throttling
-        'AUTOTHROTTLE_START_DELAY': 1,  # Initial download delay
-        'AUTOTHROTTLE_MAX_DELAY': 3,  # Maximum download delay
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': 8  # Target average number of concurrent requests
+        'DOWNLOAD_DELAY': 0.01,
     }
+    
     name = "sws"
     allowed_domains = ["emalls.ir"]
     start_urls = ["https://emalls.ir/Shops/"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # initialize performance tracking variables
+        self.start_time = perf_counter()
+        self.page_times = {}
+        self.shop_times = {}
 
     def start_requests(self):
         yield scrapy.Request(
@@ -35,6 +33,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
+        total_pages = 100 # remove this hardcode
         for page in range(1, total_pages + 1):
             url = f"https://emalls.ir/Shops/page.{page}"
             yield scrapy.Request(
@@ -52,7 +51,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
             if shop_url_partial:
                 full_shop_url = f'https://emalls.ir/{shop_url_partial}'
                 
-                # First collect basic info
+                # first collect basic info
                 basic_info = {
                     'shop_was_in_page': current_page,
                     'shop_img': response.css(f'#ContentPlaceHolder1_rptShops_imgLogo_{id}::attr(src)').get(),
@@ -73,6 +72,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
         basic_info = response.meta['basic_info']
         
         detailed_info = {
+            'senfi_number': response.css("#ContentPlaceHolder1_lblasnaf::text").get(),
             'shop_all_products_target_url': response.css("#DivPartProducts a::attr(href)").get(),
             'cooperation_status_with_emalls': response.css("#ContentPlaceHolder1_lblshopstatus::text").get(),
             'name_of_person_in_charge': response.css("#ContentPlaceHolder1_lblMasool1::text").get(),
@@ -81,22 +81,10 @@ class ShopsWithSpecsSpider(scrapy.Spider):
             'shop_email': response.css("#ContentPlaceHolder1_lblEmail::text").get(),
             'shop_score': response.css("#ContentPlaceHolder1_lblRateValue2::text").get(),
             'shop_social_media_handles': response.css("#ContentPlaceHolder1_DivSocial a::attr(href)").getall(),
-            'shop_comments': [
-                {
-                    'comment_date': comment.css('span.date::text').get(default='').strip(),
-                    'name': comment.css('span.name::text').get(default='').strip(),
-                    'role': comment.css('span.TheOrange.semat::text').get(default='').strip(),
-                    'comment': comment.css('span.Text::text').get(default='').strip(),
-                    'comment_star': comment.css('span.rate::text').get(default='').strip(),
-                }
-                for comment in response.css(".CommentItem")
-            ],
             'shop_recieved_date': response.css("#CtrlFooterLinks_LblDate::text").get(),
-            'shop_crawled_at': timezone.now(),
+            'shop_crawled_at': datetime.now(datetime.timezone.utc),
             'shop_current_city': response.css("#ContentPlaceHolder1_lblLocation::text").get(),
             'shop_duration_of_cooperation_with_emalls': response.css("#ContentPlaceHolder1_lblHamkariBaEmalls::text").get(),
-            'shop_img_icon': response.css("#ContentPlaceHolder1_imgLogo2::attr(src)").get(),
-            'shop_name': response.css("h1::text").get().strip() if response.css("h1::text").get() else None,
             'shop_website': response.css("#ContentPlaceHolder1_HlkWebsite1::attr(href)").get(),
             'shop_Enamad_sign': response.css("#ContentPlaceHolder1_lblNamad::text").get(),
         }
