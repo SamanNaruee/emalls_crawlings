@@ -42,7 +42,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
-        total_pages = 100  # Adjusted for all pages
+        total_pages = 100  # Adjusted for all pages to final_page
         
         # Generate all page requests at once
         urls = [f"https://emalls.ir/Shops/page.{page}" for page in range(1, total_pages + 1)]
