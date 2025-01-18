@@ -82,7 +82,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
             'shop_score': response.css("#ContentPlaceHolder1_lblRateValue2::text").get(),
             'shop_social_media_handles': response.css("#ContentPlaceHolder1_DivSocial a::attr(href)").getall(),
             'shop_recieved_date': response.css("#CtrlFooterLinks_LblDate::text").get(),
-            'shop_crawled_at': datetime.now(datetime.timezone.utc),
+            'shop_crawled_at': datetime.datetime.now(datetime.timezone.utc),
             'shop_current_city': response.css("#ContentPlaceHolder1_lblLocation::text").get(),
             'shop_duration_of_cooperation_with_emalls': response.css("#ContentPlaceHolder1_lblHamkariBaEmalls::text").get(),
             'shop_website': response.css("#ContentPlaceHolder1_HlkWebsite1::attr(href)").get(),
