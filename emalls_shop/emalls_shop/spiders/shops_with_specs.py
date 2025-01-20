@@ -11,14 +11,14 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     custom_settings = {
         'DOWNLOAD_DELAY': 0.0005,                   # 0.5 milisecond delay between requests
         'CONCURRENT_REQUESTS': 200,                 # max number of concurrent requests on all domains
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 200,      # max number of concurrent requests per domain
         'DOWNLOAD_TIMEOUT': 5,                      # max time in second to wait for a response
-        'REACTOR_THREADPOOL_MAXSIZE': 40,           # max size of twisted reactor thread pool
+        'REACTOR_THREADPOOL_MAXSIZE': 120,           # max size of twisted reactor thread pool
         'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
         'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
         'RETRY_ENABLED': False,                     # disable automatic retry of failed requests
         'DOWNLOAD_FAIL_ON_DATALOSS': False,         # handle fail of incomplete responses
-        'CONCURRENT_ITEMS': 400,                    # max number of items that can be processed in parallel
+        # try autothrottle for better performance: 
+            # manage download delay dynamically depend on concurrent requests and server response time
     }
     
     name = "sws"
