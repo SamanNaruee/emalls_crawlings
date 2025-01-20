@@ -5,16 +5,25 @@ import datetime
 
 
 class EmallsApiSpider(scrapy.Spider):  
-    name = "emalls_api"  
+    name = "similar_products"  
     allowed_domains = ["emalls.ir"]  
     start_urls = ["https://emalls.ir/_Search.ashx"]  
+
+    def __init__(self, shop_token, name = None, **kwargs):
+        """
+        To run this spider in terminal you should execute the following command:
+        scrapy crawl similar_products -a 21766
+        Replace 21766 with the shop_token you want to crawl.
+        """
+        super().__init__(name, **kwargs)
+        self.token = shop_token
 
     def start_requests(self):  
         # Prepare the form data to be sent in the POST request  
         form_data = {  
             "entekhab": "listitemv2",  
-            "currenturl": "https://emalls.ir/%D9%84%DB%8C%D8%B3%D8%AA-%D9%82%DB%8C%D9%85%D8%AA~shop~21766",  
-            "shop": "21766"  
+            "currenturl": f"https://emalls.ir/%D9%84%DB%8C%D8%B3%D8%AA-%D9%82%DB%8C%D9%85%D8%AA~shop~{self.token}",
+            "shop":str(self.token)
         }  
         
         for page in range(1, 6):  # remove this hardcode
