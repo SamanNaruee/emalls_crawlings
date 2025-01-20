@@ -1,4 +1,4 @@
-from winreg import REG_FULL_RESOURCE_DESCRIPTOR
+# Commented out import for REG_FULL_RESOURCE_DESCRIPTOR from winreg
 import scrapy
 from .logger_me import custom_log
 import datetime
@@ -9,16 +9,16 @@ from concurrent.futures import ThreadPoolExecutor
 class ShopsWithSpecsSpider(scrapy.Spider):
     
     custom_settings = {
-        'DOWNLOAD_DELAY': 0.0005,                   # Delay between requests in seconds
-        'CONCURRENT_REQUESTS': 200,                 # Maximum number of concurrent requests across all domains
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 200,      # Maximum number of concurrent requests per domain
-        'DOWNLOAD_TIMEOUT': 10,                     # Maximum time in seconds to wait for a response
-        'REACTOR_THREADPOOL_MAXSIZE': 40,           # Maximum size of Twisted reactor thread pool
-        'LOG_LEVEL': 'INFO',                        # Level of logging detail (INFO level shows general execution info)
-        'COOKIES_ENABLED': False,                   # Disable cookie handling to reduce overhead
-        'RETRY_ENABLED': False,                     # Disable automatic retry of failed requests
+        'DOWNLOAD_DELAY': 0.0005,                   # 0.5 milisecond delay between requests
+        'CONCURRENT_REQUESTS': 200,                 # max number of concurrent requests on all domains
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 200,      # max number of concurrent requests per domain
+        'DOWNLOAD_TIMEOUT': 5,                      # max time in second to wait for a response
+        'REACTOR_THREADPOOL_MAXSIZE': 40,           # max size of twisted reactor thread pool
+        'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
+        'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
+        'RETRY_ENABLED': False,                     # disable automatic retry of failed requests
         'DOWNLOAD_FAIL_ON_DATALOSS': False,         # handle fail of incomplete responses
-        'CONCURRENT_ITEMS': 400,                    # Maximum number of items that can be processed in parallel
+        'CONCURRENT_ITEMS': 400,                    # max number of items that can be processed in parallel
     }
     
     name = "sws"
@@ -42,7 +42,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
-        total_pages = 100  # Adjusted for all pages to final_page
+        total_pages = 100  # Adjust it for all pages to final_page
         
         # Generate all page requests at once
         urls = [f"https://emalls.ir/Shops/page.{page}" for page in range(1, total_pages + 1)]
