@@ -42,7 +42,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
-        total_pages = 100  # Adjust it for all pages to final_page
+        total_pages = 942  # Adjust it for all pages to final_page
         
         # Generate all page requests at once
         urls = [f"https://emalls.ir/Shops/page.{page}" for page in range(1, total_pages + 1)]
@@ -64,7 +64,6 @@ class ShopsWithSpecsSpider(scrapy.Spider):
                 full_shop_url = f'https://emalls.ir/{shop_url_partial}'
                 
                 basic_info = {
-                    'senfi_number': 'Unassigned_yet',
                     'shop_was_in_page': current_page,
                     'shop_img': response.css(f'#ContentPlaceHolder1_rptShops_imgLogo_{id}::attr(src)').get(),
                     'shop_title': response.css(f"#ContentPlaceHolder1_rptShops_hlkTitle_{id}::text").get(),
@@ -101,5 +100,6 @@ class ShopsWithSpecsSpider(scrapy.Spider):
             'shop_website': response.css("#ContentPlaceHolder1_HlkWebsite1::attr(href)").get(),
             'shop_Enamad_sign': response.css("#ContentPlaceHolder1_lblNamad::text").get(),
         }
+        
         
         yield {**basic_info, **detailed_info}

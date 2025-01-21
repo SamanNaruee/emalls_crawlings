@@ -8,13 +8,17 @@ class EmallsApiSpider(scrapy.Spider):
     name = "emalls_api"  
     allowed_domains = ["emalls.ir"]  
     start_urls = ["https://emalls.ir/_Search.ashx"]  
+    
+    def __init__(self, shop_token:int, name: str | None = None, **kwargs: Any):
+        super(EmallsApiSpider).__init__(name, **kwargs)
+        self.token = shop_token
 
     def start_requests(self):  
         # Prepare the form data to be sent in the POST request  
         form_data = {  
             "entekhab": "listitemv2",  
-            "currenturl": "https://emalls.ir/%D9%84%DB%8C%D8%B3%D8%AA-%D9%82%DB%8C%D9%85%D8%AA~shop~21766",  
-            "shop": "21766"  
+            "currenturl": f"https://emalls.ir/%D9%84%DB%8C%D8%B3%D8%AA-%D9%82%DB%8C%D9%85%D8%AA~shop~{self.token}",  
+            "shop": str(self.token)  
         }  
         
         for page in range(1, 6):  # remove this hardcode
