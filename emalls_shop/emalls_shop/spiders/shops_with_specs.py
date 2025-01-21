@@ -43,11 +43,8 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
-<<<<<<< HEAD
-        total_pages = 942  # Adjust it for all pages to final_page
-=======
         total_pages = int(self.pages)
->>>>>>> 6617313 (update sws spider.)
+
         
         # Generate all page requests at once
         start_page = max(1, total_pages - 99)
