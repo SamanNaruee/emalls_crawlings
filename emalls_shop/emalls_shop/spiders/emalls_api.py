@@ -5,14 +5,14 @@ import datetime
 
 
 class EmallsApiSpider(scrapy.Spider):  
-    name = "similar_products"  
+    name = "similars"  
     allowed_domains = ["emalls.ir"]  
     start_urls = ["https://emalls.ir/_Search.ashx"]  
 
     def __init__(self, shop_token, name = None, **kwargs):
         """
         To run this spider in terminal you should execute the following command:
-        scrapy crawl similar_products -a 21766
+        scrapy crawl similars -a 21766
         Replace 21766 with the shop_token you want to crawl.
         """
         super().__init__(name, **kwargs)
