@@ -7,80 +7,45 @@ import datetime
 class EmallsApiSpider(scrapy.Spider):  
     name = "similars"  
     allowed_domains = ["emalls.ir"]  
-    start_urls = ["https://emalls.ir/_Search.ashx"]  
+    start_urls = ["https://emalls.ir"]  
 
     def __init__(self, shop_token, name = None, **kwargs):
         """
         To run this spider in terminal you should execute the following command:
-        scrapy crawl similars -a shop_token=21766
-        Replace 21766 with the shop_token you want to crawl.
+        scrapy crawl similars -a shop_token=3273596
+        Replace 3273596 with the shop_token you want to crawl.
         """
         super().__init__(name, **kwargs)
         self.token = shop_token
 
     def start_requests(self):  
         # Prepare the form data to be sent in the POST request  
-        form_data = {  
+        send_data = {  
             "entekhab": "listitemv2",  
             "currenturl": f"https://emalls.ir/%D9%84%DB%8C%D8%B3%D8%AA-%D9%82%DB%8C%D9%85%D8%AA~shop~{self.token}",
             "shop":str(self.token)
         }  
         
-        for page in range(1, 6):  # remove this hardcode
-            form_data["currenturl"] += f"~page~{page}"  
-
-            yield scrapy.FormRequest(  
-                url=self.start_urls[0],  
-                method='POST',  
-                formdata=form_data,  
-                meta={'shop_id': form_data['shop'], 'page': page},
-                callback=self.parse  
-            )  
-
-    def parse(self, response):  
-        # Load the JSON data from the response  
-        data = json.loads(response.body)  
-        data = data.get('lstsearchresualt', [])
-        formdata = json.loads(response.body)
-        products = []   
-        for product in data:
-            sent_product = {
-                'id': product.get('id'),  
-                'title': product.get('title'),  
-                'titlefa': product.get('titlefa'),  
-                'link': f"https://emalls.ir/{product.get('link')}",  
-                'image': product.get('image'),  
-                'category': product.get('category'),  
-                'rate': product.get('rate'),  
-                'offcount': product.get('offcount'),  
-                'price': product.get('price'),  
-                'pprice': product.get('pprice'),  
-                'discountpercent': product.get('discountpercent'),  
-                'maxprice': product.get('maxprice'),  
-                'lupdate': product.get('lupdate'),  
-                'buyTitle': product.get('buyTitle'),  
-                'buyLink': product.get('buyLink'),  
-                'spec': product.get('spec'),  
-                'used': product.get('used'),  
-                'shop_id': response.meta['shop_id'],
-                'crawled_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'page': response.meta['page'],   
-            }
+        yield scrapy.Request(  
+            url=send_data["currenturl"],  
+            callback=self.parse  
             
-            products.append(sent_product)
-            
-            yield scrapy.Request(
-                url=sent_product['link'],
-                callback=self.parse_product_similars,
-                meta=sent_product,
-            )
-
+        )
+        
+    def parse(self, response): 
+        custom_log("response", response)
+        product = response.css(".product-block::text").get()
+        custom_log("product", product)
         yield {
-            'products': products,
-        }
+            'product_id': 'pass',
+            'name': 'pass',
+            'url': 'pass',
+            'image_url': 'pass',
+            'price': 'pass',
+            'stores': 'pass',
+            }
 
-    def parse_product_similars(self, response):
-        url = response.meta['link']
-        similars = ...
-        most_expensive_price = response.css("#DivOffer1 > div > strong.green-price.selectorgadget_selected > label").get()
-        custom_log(most_expensive_price)
+        # Pagination
+        next_page = response.css('a.next-page::attr(href)').get()
+        if next_page:
+            yield response.follow(next_page, callback=self.parse)
