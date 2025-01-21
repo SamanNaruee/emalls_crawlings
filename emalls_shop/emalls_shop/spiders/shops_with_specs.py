@@ -11,7 +11,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     custom_settings = {
         'DOWNLOAD_DELAY': 0.0005,                   # 0.5 milisecond delay between requests
         'CONCURRENT_REQUESTS': 200,                 # max number of concurrent requests on all domains
-        'DOWNLOAD_TIMEOUT': 5,                      # max time in second to wait for a response
+        'DOWNLOAD_TIMEOUT': 35,                      # max time in second to wait for a response
         'REACTOR_THREADPOOL_MAXSIZE': 120,           # max size of twisted reactor thread pool
         'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
         'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
@@ -25,11 +25,12 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     allowed_domains = ["emalls.ir"]
     start_urls = ["https://emalls.ir/Shops/"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, pages, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.start_time = perf_counter()
         self.page_times = {}
         self.shop_times = {}
+        self.pages = pages # all pages that must crawl. Usage: scrapy crawl sws -a pages=100 to crawl 100 pages from 1 to 100.
 
     def start_requests(self):
         yield scrapy.Request(
@@ -42,10 +43,11 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
         total_pages = int(final_page) if final_page and final_page.isdigit() else 3
-        total_pages = 100  # Adjust it for all pages to final_page
+        total_pages = int(self.pages)
         
         # Generate all page requests at once
-        urls = [f"https://emalls.ir/Shops/page.{page}" for page in range(1, total_pages + 1)]
+        start_page = max(1, total_pages - 99)
+        urls = [f"https://emalls.ir/Shops/page.{page}" for page in range(start_page, total_pages + 1)]
         for url in urls:
             yield scrapy.Request(
                 url=url,
