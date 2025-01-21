@@ -12,7 +12,7 @@ class EmallsApiSpider(scrapy.Spider):
     def __init__(self, shop_token, name = None, **kwargs):
         """
         To run this spider in terminal you should execute the following command:
-        scrapy crawl similars -a 21766
+        scrapy crawl similars -a shop_token=21766
         Replace 21766 with the shop_token you want to crawl.
         """
         super().__init__(name, **kwargs)
@@ -68,7 +68,19 @@ class EmallsApiSpider(scrapy.Spider):
             }
             
             products.append(sent_product)
+            
+            yield scrapy.Request(
+                url=sent_product['link'],
+                callback=self.parse_product_similars,
+                meta=sent_product,
+            )
 
         yield {
             'products': products,
         }
+
+    def parse_product_similars(self, response):
+        url = response.meta['link']
+        similars = ...
+        most_expensive_price = response.css("#DivOffer1 > div > strong.green-price.selectorgadget_selected > label").get()
+        custom_log(most_expensive_price)
