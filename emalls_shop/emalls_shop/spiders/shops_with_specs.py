@@ -1,4 +1,3 @@
-# Commented out import for REG_FULL_RESOURCE_DESCRIPTOR from winreg
 import scrapy
 from .logger_me import custom_log
 import datetime
@@ -22,6 +21,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
         'AUTOTHROTTLE_MAX_DELAY': 0.5,                # max delay
         'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,     # target concurrency
     }
+    
     
     name = "sws"
     allowed_domains = ["emalls.ir"]
