@@ -9,16 +9,18 @@ from concurrent.futures import ThreadPoolExecutor
 class ShopsWithSpecsSpider(scrapy.Spider):
     
     custom_settings = {
-        'DOWNLOAD_DELAY': 0.0005,                   # 0.5 milisecond delay between requests
-        'CONCURRENT_REQUESTS': 200,                 # max number of concurrent requests on all domains
-        'DOWNLOAD_TIMEOUT': 35,                      # max time in second to wait for a response
-        'REACTOR_THREADPOOL_MAXSIZE': 120,           # max size of twisted reactor thread pool
+        'DOWNLOAD_DELAY': 0.05,                     # 0.5 milisecond delay between requests
+        'CONCURRENT_REQUESTS': 12,                  # max number of concurrent requests on all domains
+        'DOWNLOAD_TIMEOUT': 35,                     # max time in second to wait for a response
+        'REACTOR_THREADPOOL_MAXSIZE': 10,           # max size of twisted reactor thread pool
         'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
         'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
         'RETRY_ENABLED': False,                     # disable automatic retry of failed requests
         'DOWNLOAD_FAIL_ON_DATALOSS': False,         # handle fail of incomplete responses
-        # try autothrottle for better performance: 
-            # manage download delay dynamically depend on concurrent requests and server response time
+        'AUTOTHROTTLE_ENABLED': True,
+        'AUTOTHROTTLE_START_DELAY': 0.05,           # initial delay
+        'AUTOTHROTTLE_MAX_DELAY': 0.5,                # max delay
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,     # target concurrency
     }
     
     name = "sws"
@@ -42,7 +44,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
     @profile
     def parse(self, response):
         final_page = response.css('#ContentPlaceHolder1_rptPagingBottom_hlinkPage_6::text').get()
-        total_pages = int(final_page) if final_page and final_page.isdigit() else 3
+        # total_pages = int(final_page) if final_page and final_page.isdigit() else 3
         total_pages = int(self.pages)
 
         
