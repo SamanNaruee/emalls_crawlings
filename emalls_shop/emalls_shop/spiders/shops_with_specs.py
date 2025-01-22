@@ -1,4 +1,3 @@
-# Commented out import for REG_FULL_RESOURCE_DESCRIPTOR from winreg
 import scrapy
 from .logger_me import custom_log
 import datetime
@@ -20,6 +19,7 @@ class ShopsWithSpecsSpider(scrapy.Spider):
         # try autothrottle for better performance: 
             # manage download delay dynamically depend on concurrent requests and server response time
     }
+    
     
     name = "sws"
     allowed_domains = ["emalls.ir"]
