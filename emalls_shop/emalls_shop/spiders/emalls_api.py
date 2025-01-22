@@ -9,7 +9,7 @@ class EmallsApiSpider(scrapy.Spider):
     allowed_domains = ["emalls.ir"]  
     start_urls = ["https://emalls.ir/_Search.ashx"]  
     
-    def __init__(self, shop_token:int, name: str | None = None, **kwargs: Any):
+    def __init__(self, shop_token:int, name: str | None = None, **kwargs: any):
         super(EmallsApiSpider).__init__(name, **kwargs)
         self.token = shop_token
 
