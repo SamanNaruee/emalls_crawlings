@@ -42,8 +42,23 @@ class EmallsApiSpider(scrapy.Spider):
             'url': 'pass',
             'image_url': 'pass',
             'price': 'pass',
-            'stores': 'pass',
+            'suggested_stores': {
+                '1': {
+                    'name': 'pass',
+                    'url': 'pass',
+                    'product_price': 'pass',
+                    'product_url': 'pass',
+                }
+            },
+            'other_stores': {
+                '1': {
+                    'name': 'pass',
+                    'url': 'pass',
+                    'product_price': 'pass',
+                    'product_url': 'pass',
+                }
             }
+        }
 
         # Pagination
         next_page = response.css('a.next-page::attr(href)').get()
