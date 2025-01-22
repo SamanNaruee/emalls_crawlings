@@ -32,7 +32,8 @@ class ShopsWithSpecsSpider(scrapy.Spider):
         self.start_time = perf_counter()
         self.page_times = {}
         self.shop_times = {}
-        self.pages = pages # all pages that must crawl. Usage: scrapy crawl sws -a pages=100 to crawl 100 pages from 1 to 100.
+        # all pages that must crawl. Usage: scrapy crawl sws -o output.csv -a pages=200 to crawl 100 pages from 101 to 200.
+        self.pages = pages
 
     def start_requests(self):
         yield scrapy.Request(
