@@ -1,5 +1,7 @@
+from cgitb import text
 import scrapy, json
 from .logger_me import custom_log
+from urllib.parse import urlencode
 
 
 class SpSpider(scrapy.Spider):
@@ -12,26 +14,97 @@ class SpSpider(scrapy.Spider):
 
     def parse(self, response):  
         target_product_title = response.css("#ContentPlaceHolder1_H1TitleDesktop::text").get().strip()
-        # Step 1: Navigate to the specific element containing shop listings  
-        # Using the selector. The element is not directly used unless you need specific data from it.  
-        element = response.css('#ContentPlaceHolder1_DivPartShops').get()  
-        
-        # Step 2: Navigate to the shop list  
-        shop_list = response.css('#ContentPlaceHolder1_DivPartShops > div.shoplist')  
-
-        # Step 3: Iterate through each shop-row inside the shop list  
-        for shop in shop_list.css('div.shop-row'):  
-            shop_id = shop.attrib.get('data-shopid')  # Getting data-shopid if it exists  
-            shop_name = shop.css('span.shop-name::text').get(default='N/A').strip()  # Name of the shop  
-            price = shop.css('span.shop-price::text').get(default='N/A').strip()  # Price of the shop  
+        target_product_en_title = response.css("#form1 > div.main > div.container.top-detail > div.part-2 > div.product-title > div.name-en-kala::text").get().strip()
+        target_product_price = response.css("#ContentPlaceHolder1_LblLessPrice::text").get().strip()
+        target_product_url = response.url
+        specs =response.css("#DivPartSpec > div.box-tab-custom.openable")
+        specs = specs.css("div.info")
+        specs_dict = {}
+        for spec in specs:
+            key = spec.css("div.info >span::text").get().strip()
+            value = spec.css("div.info > span:last-of-type::text").get().strip()
+            specs_dict[key] = value
             
-            yield {  
-                'shop_id': shop_id,  
-                'shop_name': shop_name,  
-                'price': price,  
-            }  
+        target_product_specs = json.dumps(specs_dict, ensure_ascii=False)
+        product_id = response.url.split("~")[-2]
+
+        product = {
+            'product_id': product_id,
+            'target_product_title': target_product_title,
+            'target_product_en_title': target_product_en_title,
+            'target_product_price': target_product_price,
+            'target_product_url': target_product_url,
+            'target_product_specs': target_product_specs
+        }
+
+        # To get all data from FormData:
+        FormData = {
+            "id": product_id,
+            "startfrom": 11
+        }
+                
+        yield scrapy.Request(
+            url="https://emalls.ir/swservice/webshopproduct.ashx",
+            method="POST",
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            body=urlencode(FormData),
+            meta={"product": product},
+            callback=self.similar_products_parse
+            
+        )
+    
+    def similar_products_parse(self, response):
+        similars = json.loads(response.body)
+        similars = [sim for sim in similars if sim["sort_price_val"] != "9999999999"]
+        custom_log(len(similars))
+        product_details = response.meta["product"]
+        product_details["similars"] = similars
+        yield product_details
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # other suggested shops prices:
+        # other_shops = response.css("#ContentPlaceHolder1_DivPartShops > div.shoplist")
+        # similar_prices_by_shops = {}
+        # for shop in other_shops:
+        #     selector = "div.shop-row.exId-300366910.shoptype-1.special-shop > div.shop-logo-wrapper > span:nth-child(1) > a"
+        #     shop_title = shop.css(f"{selector}::text").get().strip()
+        #     product_url = response.css("#ContentPlaceHolder1_DivPartShops > div.shoplist > div.shop-row.exId-300366910.shoptype-1.special-shop > div.shop-prd-price > div.flx-berooz > div > span.shop-price.esrever::attr(href)").get().strip()
+        #     price = response.css("#ContentPlaceHolder1_DivPartShops > div.shoplist > div.shop-row.exId-300366910.shoptype-1.special-shop > div.shop-prd-price > div.flx-berooz > div > span.shop-price.esrever::text").get().strip()
+        #     shop_score = response.css("#ContentPlaceHolder1_DivPartShops > div.shoplist > div.shop-row.exId-258156676.shoptype-0.special-shop > div.shop-logo-wrapper > span:nth-child(1) > div > span.shop-rate.star-icon-gold.desktop.esrever > span::text").get().strip()
+            
+            
+        #     similar_prices_by_shops[shop_title] = {
+        #         "shop_titel": shop_title,
+        #         "shop_url": product_url,
+        #         "shop_price": price,
+        #         "shop_score": shop_score
+        #     }
         
-        # If there are more pages to navigate, implement pagination here  
-        next_page = response.css('#ContentPlaceHolder1_DivPartShops a.next::attr(href)').get()  
-        if next_page:  
-            yield response.follow(next_page, self.parse)  
+        
+        # yield similar_prices_by_shops
+        
