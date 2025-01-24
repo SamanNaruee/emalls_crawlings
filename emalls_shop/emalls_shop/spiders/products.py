@@ -5,6 +5,10 @@ from urllib.parse import urlencode
 from .logger_me import custom_log
 
 class ProductsSpider(scrapy.Spider):
+    """
+    Usage:
+        scrapy crawl products -o output.csv -a token=954
+    """
     name = "products"
     allowed_domains = ["emalls.ir"]
     start_urls = [f"https://emalls.ir/%D9%84%DB%8C%D8%B3%D8%AA-%D9%82%DB%8C%D9%85%D8%AA~shop~2292"]
@@ -12,12 +16,13 @@ class ProductsSpider(scrapy.Spider):
     def __init__(self, token, name: str | None = None, **kwargs: any):
         super().__init__(name, **kwargs)
         self.token = token
+
         
     def start_requests(self):
         pagenum = 2 # appears since page 2 
         form_data = {
             "entekhab": "listitemv2",
-            "currenturl": f"https://emalls.ir/%d9%84%db%8c%d8%b3%d8%aa-%d9%82%db%8c%d9%85%d8%aa~shop~{self.token}",
+            "currenturl": f"https://emalls.ir/%d9%84%db%8c%d8%b3%d8%aa-%d9%82%db%8c%d9%85%d8%aa~shop~{self.token}~page~{pagenum}",
             "attfilters":  "",
             "minprice": "0",
             "maxprice": "0",
