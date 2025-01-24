@@ -14,7 +14,7 @@ class ProductsSpider(scrapy.Spider):
         self.token = token
         
     def start_requests(self):
-        pagenum = 1
+        pagenum = 2 # appears since page 2 
         form_data = {
             "entekhab": "listitemv2",
             "currenturl": f"https://emalls.ir/%d9%84%db%8c%d8%b3%d8%aa-%d9%82%db%8c%d9%85%d8%aa~shop~{self.token}",
@@ -48,7 +48,7 @@ class ProductsSpider(scrapy.Spider):
 
     def parse(self, response):
         data = json.loads(response.body)
-        data = data['lstsearchresualt']
+        data = data
         custom_log(data)
 
 
