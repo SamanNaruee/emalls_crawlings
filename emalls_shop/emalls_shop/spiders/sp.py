@@ -56,7 +56,6 @@ class SpSpider(scrapy.Spider):
     def similar_products_parse(self, response):
         similars = json.loads(response.body)
         similars = [sim for sim in similars if sim["sort_price_val"] != "9999999999"]
-        custom_log(len(similars))
         product_details = response.meta["product"]
         product_details["similars"] = similars
         yield product_details
