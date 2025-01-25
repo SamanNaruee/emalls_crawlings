@@ -10,7 +10,7 @@ from colorama import Fore
 class ProductsSpider(scrapy.Spider):
     """
     Usage:
-        scrapy crawl products -o all_products_of_a_shop.json -a token=954
+        scrapy crawl products -o all_products_of_a_shop.json -a token=50590
     """
     custom_settings = {
         'RETRY_ENABLED': True,  
