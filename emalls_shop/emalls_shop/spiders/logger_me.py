@@ -21,7 +21,8 @@ def custom_log(message='', value=None, color=Fore.GREEN):
     caller_frame = sys._getframe().f_back
     print(f"{color}\n##############################\n{Style.RESET_ALL}")
     print(f"{color}{message}{Style.RESET_ALL}")
-    print(f"{color}Your value:\n{value}{Style.RESET_ALL}")
+    if value:
+        print(f"{color}Your value:\n{value}{Style.RESET_ALL}")
     print(f"{color}File path: {os.path.abspath(caller_frame.f_code.co_filename)}{Style.RESET_ALL}")
     print(f"{color}Function name: {caller_frame.f_code.co_name}{Style.RESET_ALL}")
     print(f"{color}Line number: {caller_frame.f_lineno}{Style.RESET_ALL}")
