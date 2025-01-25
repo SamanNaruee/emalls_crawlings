@@ -73,7 +73,7 @@ class ProductsSpider(scrapy.Spider):
             
             pagenum += 1
             yield request
-
+ 
     @profile
     def parse(self, response):
         data = json.loads(response.body)
