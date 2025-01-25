@@ -84,7 +84,6 @@ class ProductsSpider(scrapy.Spider):
         products = data['lstsearchresualt']
         for product in products:
             product_start_url = f"https://emalls.ir/{product['link']}"  
-            custom_log(product_start_url, color=Fore.BLUE)
             product_data = {
                 'product_id': product['id'],
                 'product_link': product_start_url,
