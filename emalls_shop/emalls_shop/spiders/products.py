@@ -9,7 +9,7 @@ from memory_profiler import profile
 class ProductsSpider(scrapy.Spider):
     """
     Usage:
-        scrapy crawl products -o output.csv -a token=954
+        scrapy crawl products -o all_products_of_a_shop.json -a token=954
     """
     custom_settings = {
         'RETRY_ENABLED': True,  
@@ -84,4 +84,59 @@ class ProductsSpider(scrapy.Spider):
             return None
 
         products = data['lstsearchresualt']
-        yield products
+        for product in products:
+            product_start_url = f"https://emalls.ir/{product['link']}"  
+            yield scrapy.Request(
+                url=product_start_url,
+                callback=self.parse_product,
+            )
+
+    @profile
+    def parse_product(self, response):
+        target_product_title = response.css("#ContentPlaceHolder1_H1TitleDesktop::text").get().strip()
+        target_product_en_title = response.css("#form1 > div.main > div.container.top-detail > div.part-2 > div.product-title > div.name-en-kala::text").get().strip()
+        target_product_price = response.css("#ContentPlaceHolder1_LblLessPrice::text").get().strip()
+        target_product_url = response.url
+        specs =response.css("#DivPartSpec > div.box-tab-custom.openable")
+        specs = specs.css("div.info")
+        specs_dict = {}
+        for spec in specs:
+            key = spec.css("div.info >span::text").get().strip()
+            value = spec.css("div.info > span:last-of-type::text").get().strip()
+            specs_dict[key] = value
+            
+        target_product_specs = json.dumps(specs_dict, ensure_ascii=False)
+        product_id = response.url.split("~")[-2]
+
+        product = {
+            'product_id': product_id,
+            'target_product_title': target_product_title,
+            'target_product_en_title': target_product_en_title,
+            'target_product_price': target_product_price,
+            'target_product_url': target_product_url,
+            'target_product_specs': target_product_specs
+        }
+
+        # To get all data from FormData:
+        FormData = {
+            "id": product_id,
+            "startfrom": 11
+        }
+                
+        yield scrapy.Request(
+            url="https://emalls.ir/swservice/webshopproduct.ashx",
+            method="POST",
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            body=urlencode(FormData),
+            meta={"product": product},
+            callback=self.similar_products_parse
+            
+        )
+    
+    @profile
+    def similar_products_parse(self, response):
+        similars = json.loads(response.body)
+        similars = [sim for sim in similars if sim["sort_price_val"] != "9999999999"]
+        product_details = response.meta["product"]
+        product_details["similars"] = similars
+        yield product_details
