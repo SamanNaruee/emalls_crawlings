@@ -45,7 +45,7 @@ class ProductsSpider(scrapy.Spider):
 
     @profile
     def start_requests(self):
-        pagenum = 200
+        pagenum = 1
         while not self.stop_crawling:
             form_data = {
                 "entekhab": "listitemv2",
@@ -91,6 +91,10 @@ class ProductsSpider(scrapy.Spider):
                 'product_link': product_start_url,
                 'product_details': {},
             }
+            product_data.update({
+                key: value for key, value in product.items() if key != 'link'
+            })
+            
             yield scrapy.Request(
                 url=product_start_url,
                 callback=self.parse_product,
