@@ -12,9 +12,11 @@ class ProductsSpider(scrapy.Spider):
         scrapy crawl products -o output.csv -a token=954
     """
     custom_settings = {
+        'RETRY_ENABLED': True,  
+        'RETRY_TIMES': 3,
         'DOWNLOAD_DELAY': 0.05,                     # 50 milisecond delay between requests
         'CONCURRENT_REQUESTS': 12,                  # max number of concurrent requests on all domains
-        'DOWNLOAD_TIMEOUT': 35,                     # max time in second to wait for a response
+        'DOWNLOAD_TIMEOUT': 45,                     # max time in second to wait for a response
         'REACTOR_THREADPOOL_MAXSIZE': 10,           # max size of twisted reactor thread pool
         'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
         'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
@@ -37,7 +39,7 @@ class ProductsSpider(scrapy.Spider):
 
     @profile
     def start_requests(self):
-        pagenum = 2
+        pagenum = 1
         while True:
             form_data = {
                 "entekhab": "listitemv2",
@@ -68,6 +70,7 @@ class ProductsSpider(scrapy.Spider):
                 meta={'shop_token': self.token, 'pagenum': pagenum},
                 dont_filter=True
             )
+            
             pagenum += 1
             yield request
 
