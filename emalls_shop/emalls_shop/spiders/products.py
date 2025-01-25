@@ -98,20 +98,27 @@ class ProductsSpider(scrapy.Spider):
 
     @profile
     def parse_product(self, response):
-        target_product_title = response.css("#ContentPlaceHolder1_H1TitleDesktop::text").get().strip()
-        target_product_en_title = response.css("#form1 > div.main > div.container.top-detail > div.part-2 > div.product-title > div.name-en-kala::text").get().strip()
-        target_product_price = response.css("#ContentPlaceHolder1_LblLessPrice::text").get().strip()
+        target_product_title = response.css("#ContentPlaceHolder1_H1TitleDesktop::text").get()
+        target_product_title = target_product_title.strip() if target_product_title is not None else None
+
+        target_product_en_title = response.css("#form1 > div.main > div.container.top-detail > div.part-2 > div.product-title > div.name-en-kala::text").get()
+        target_product_en_title = target_product_en_title.strip() if target_product_en_title is not None else None
+
+        target_product_price = response.css("#ContentPlaceHolder1_LblLessPrice::text").get()
+        target_product_price = target_product_price.strip() if target_product_price is not None else None
         target_product_url = response.url
         specs =response.css("#DivPartSpec > div.box-tab-custom.openable")
         specs = specs.css("div.info")
         specs_dict = {}
         for spec in specs:
-            key = spec.css("div.info >span::text").get().strip()
-            value = spec.css("div.info > span:last-of-type::text").get().strip()
+            key = spec.css("div.info >span::text").get()
+            key = key.strip() if key is not None else None
+            value = spec.css("div.info > span:last-of-type::text").get()
+            value = value.strip() if value is not None else None
             specs_dict[key] = value
             
         target_product_specs = json.dumps(specs_dict, ensure_ascii=False)
-        product_id = response.url.split("~")[-2]
+        product_id = response.url.split("~")[-1]
 
         product_data = response.meta["product"]
 
