@@ -4,6 +4,7 @@ import scrapy, json
 from urllib.parse import urlencode
 from .logger_me import custom_log
 from memory_profiler import profile
+from colorama import Fore
 
 
 class ProductsSpider(scrapy.Spider):
@@ -26,6 +27,10 @@ class ProductsSpider(scrapy.Spider):
         'AUTOTHROTTLE_START_DELAY': 0.05,           # initial delay
         'AUTOTHROTTLE_MAX_DELAY': 0.5,              # max delay
         'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,     # target concurrency
+        'DOWNLOADER_MIDDLEWARES': {  
+            'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  
+            'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,  
+        }, 
     }
     
     
@@ -44,13 +49,7 @@ class ProductsSpider(scrapy.Spider):
             form_data = {
                 "entekhab": "listitemv2",
                 "currenturl": f"https://emalls.ir/%d9%84%db%8c%d8%b3%d8%aa-%d9%82%db%8c%d9%85%d8%aa~shop~{self.token}~page~{pagenum}",
-                "attfilters":  "",
-                "minprice": "0",
-                "maxprice": "0",
-                "brandid": "0",
-                "findstr":  "",
                 "pagenum": str(pagenum),
-                "exist":  "",
                 "shop": self.token
             }
             
@@ -85,6 +84,7 @@ class ProductsSpider(scrapy.Spider):
         products = data['lstsearchresualt']
         for product in products:
             product_start_url = f"https://emalls.ir/{product['link']}"  
+            custom_log(product_start_url, color=Fore.BLUE)
             product_data = {
                 'product_id': product['id'],
                 'product_link': product_start_url,
