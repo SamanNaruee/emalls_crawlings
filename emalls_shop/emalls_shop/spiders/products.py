@@ -41,11 +41,12 @@ class ProductsSpider(scrapy.Spider):
     def __init__(self, token, name: str | None = None, **kwargs: any):
         super().__init__(name, **kwargs)
         self.token = token
+        self.stop_crawling = False
 
     @profile
     def start_requests(self):
-        pagenum = 1
-        while True:
+        pagenum = 200
+        while not self.stop_crawling:
             form_data = {
                 "entekhab": "listitemv2",
                 "currenturl": f"https://emalls.ir/%d9%84%db%8c%d8%b3%d8%aa-%d9%82%db%8c%d9%85%d8%aa~shop~{self.token}~page~{pagenum}",
@@ -79,6 +80,7 @@ class ProductsSpider(scrapy.Spider):
         # check if a page does not exist.
         if not data or not data['lstsearchresualt']:
             custom_log(f"Does not find any product in this page: {response.meta['pagenum']}")
+            self.stop_crawling = True
             return None
 
         products = data['lstsearchresualt']
