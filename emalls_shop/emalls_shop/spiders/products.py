@@ -77,7 +77,6 @@ class ProductsSpider(scrapy.Spider):
     @profile
     def parse(self, response):
         data = json.loads(response.body)
-        custom_log(data)
         # check if a page does not exist.
         if not data or not data['lstsearchresualt']:
             custom_log(f"Does not find any product in this page: {response.meta['pagenum']}")
@@ -86,9 +85,15 @@ class ProductsSpider(scrapy.Spider):
         products = data['lstsearchresualt']
         for product in products:
             product_start_url = f"https://emalls.ir/{product['link']}"  
+            product_data = {
+                'product_id': product['id'],
+                'product_link': product_start_url,
+                'product_details': {},
+            }
             yield scrapy.Request(
                 url=product_start_url,
                 callback=self.parse_product,
+                meta={'product': product_data},
             )
 
     @profile
@@ -108,14 +113,16 @@ class ProductsSpider(scrapy.Spider):
         target_product_specs = json.dumps(specs_dict, ensure_ascii=False)
         product_id = response.url.split("~")[-2]
 
-        product = {
+        product_data = response.meta["product"]
+
+        product_data.update({
             'product_id': product_id,
             'target_product_title': target_product_title,
             'target_product_en_title': target_product_en_title,
             'target_product_price': target_product_price,
             'target_product_url': target_product_url,
             'target_product_specs': target_product_specs
-        }
+        })
 
         # To get all data from FormData:
         FormData = {
@@ -128,15 +135,16 @@ class ProductsSpider(scrapy.Spider):
             method="POST",
             headers={'Content-Type': 'application/x-www-form-urlencoded'},
             body=urlencode(FormData),
-            meta={"product": product},
+            meta={"product": product_data},
             callback=self.similar_products_parse
             
         )
     
     @profile
     def similar_products_parse(self, response):
+        product = response.meta["product"]
+        
         similars = json.loads(response.body)
         similars = [sim for sim in similars if sim["sort_price_val"] != "9999999999"]
-        product_details = response.meta["product"]
-        product_details["similars"] = similars
-        yield product_details
+        product['product_details']['similars'] = similars
+        yield product
