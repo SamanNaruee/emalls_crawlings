@@ -37,9 +37,9 @@ for page in range(1, pagenum + 1):
 
     response_body = response.json()
 
-    print(response_body['pagetitle'], page)
     
     # save response_body to json file.
     with open(f"Digikala_shop_page_{page}.json", "w", encoding="utf-8") as f:
         json.dump(response_body, f, ensure_ascii=False, indent=4)
+        print(f"Successfullycrawled page: {page} at {response_body['pagetitle']}")
 
