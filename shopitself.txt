@@ -1,9 +1,0 @@
-https://emalls.ir/Shop/21766 : url for shop it self
-
-
-but must crawl it using css and xpath.
-
-
-
-must update product model and even shop.
-to handle new saving data.
