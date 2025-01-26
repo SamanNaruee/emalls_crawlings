@@ -68,7 +68,8 @@ class ProductsSpider(scrapy.Spider):
                 meta={'shop_token': self.token, 'pagenum': pagenum},
                 dont_filter=True
             )
-            
+            if not request:
+                break
             yield request
             pagenum += 1
  
