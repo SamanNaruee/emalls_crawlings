@@ -9,7 +9,7 @@ import json
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 token = "1"  # replace with your actual token of target shop 
-pagenum = 1  
+pagenum = 1 
  
 while pagenum:
     
