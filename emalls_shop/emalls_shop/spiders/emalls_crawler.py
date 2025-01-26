@@ -22,7 +22,7 @@ def crawl_emalls(token="1"):
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "X-Requested-With": "XMLHttpRequest",
             "Accept": "application/json, text/javascript, */*; q=0.01",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0"  # 200 means success
         }
         response = requests.post("https://emalls.ir/_Search.ashx", data=urlencode(form_data), headers=headers)
         print("Status Code:", response.status_code)
