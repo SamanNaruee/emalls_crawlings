@@ -134,19 +134,10 @@ RETRY_ENABLED = True
 RETRY_TIMES = 5  # Retry 5 times on failure
 RETRY_HTTP_CODES = [503, 500, 502, 504, 403]  # Retry on server errors
 
-# settings.py
 
-AUTOTHROTTLE_ENABLED = True
-AUTOTHROTTLE_START_DELAY = 2  # Initial delay
-AUTOTHROTTLE_MAX_DELAY = 15   # Max delay
-AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
-
-DOWNLOAD_DELAY = 3
 
 ROBOTSTXT_OBEY = False
 
-# settings.py
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
 
 # settings.py of proxy settings
 
@@ -156,22 +147,11 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 # }
 
 RANDOMIZE_DOWNLOAD_DELAY = True
-
 # Optimize concurrent requests based on your system capacity
-CONCURRENT_REQUESTS = 8
-CONCURRENT_REQUESTS_PER_DOMAIN = 8
-
-HTTPCACHE_ENABLED = True
-HTTPCACHE_EXPIRATION_SECS = 86400  # 24 hours
-HTTPCACHE_DIR = 'httpcache'
 
 
-# TWISTED_REACTOR = "twisted.internet.asyncio.AsyncioSelectorReactor"
-ASYNCIO_EVENT_LOOP = "asyncio.SelectorEventLoop"
 
 ITEM_PIPELINES = {
     'emalls_shop.pipelines.EmallsShopPipeline': 300,
     'scrapy.pipelines.images.ImagesPipeline': 1
 }
-CONCURRENT_ITEMS = 200
-COMPRESSION_ENABLED = True
