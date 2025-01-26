@@ -14,21 +14,21 @@ class ProductsSpider(scrapy.Spider):
     custom_settings = {
         'RETRY_ENABLED': True,  
         'RETRY_TIMES': 3,
-        'DOWNLOAD_DELAY': 0.8,                      # 50 milisecond delay between requests
+        'DOWNLOAD_DELAY': 0.025,                    # 25 milisecond delay between requests
         'CONCURRENT_REQUESTS': 12,                  # max number of concurrent requests on all domains
-        'DOWNLOAD_TIMEOUT': 60,                     # max time in second to wait for a response
+        'DOWNLOAD_TIMEOUT': 30,                     # max time in second to wait for a response
         'REACTOR_THREADPOOL_MAXSIZE': 10,           # max size of twisted reactor thread pool
         'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
         'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
         'RETRY_ENABLED': False,                     # disable automatic retry of failed requests
         'DOWNLOAD_FAIL_ON_DATALOSS': False,         # handle fail of incomplete responses
         'AUTOTHROTTLE_ENABLED': True,
-        'AUTOTHROTTLE_START_DELAY': 0.25,           # initial delay
-        'AUTOTHROTTLE_MAX_DELAY': 1,                # max delay
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,     # target concurrency
+        'AUTOTHROTTLE_START_DELAY': 0.025,             # initial delay
+        'AUTOTHROTTLE_MAX_DELAY': 0.75,                # max delay
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,        # target concurrency
         'DOWNLOADER_MIDDLEWARES': {  
             'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  
-            'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,  
+            'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 10,  
         }, 
     }
     
@@ -76,7 +76,7 @@ class ProductsSpider(scrapy.Spider):
     def parse(self, response):
         data = json.loads(response.body)
         # check if a page does not exist.
-        if not data or not data['lstsearchresualt']:
+        if not data['lstpagingresualt'] or data['lstpagingresualt'][-1]['stat'] != 'next':
             custom_log(f"Does not find any product in this page: {response.meta['pagenum']}")
             self.stop_crawling = True
             return None
