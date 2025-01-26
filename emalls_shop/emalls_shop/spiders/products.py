@@ -3,7 +3,6 @@ from operator import truediv
 import scrapy, json
 from urllib.parse import urlencode
 from .logger_me import custom_log
-from memory_profiler import profile
 from colorama import Fore
 
 
@@ -13,20 +12,20 @@ class ProductsSpider(scrapy.Spider):
         scrapy crawl products -o all_products_of_a_shop.json -a token=50590
     """
     custom_settings = {
-        'RETRY_ENABLED': True,  
-        'RETRY_TIMES': 3,
-        'DOWNLOAD_DELAY': 0.8,                     # 50 milisecond delay between requests
-        'CONCURRENT_REQUESTS': 12,                  # max number of concurrent requests on all domains
-        'DOWNLOAD_TIMEOUT': 60,                     # max time in second to wait for a response
-        'REACTOR_THREADPOOL_MAXSIZE': 10,           # max size of twisted reactor thread pool
-        'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
-        'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
-        'RETRY_ENABLED': False,                     # disable automatic retry of failed requests
-        'DOWNLOAD_FAIL_ON_DATALOSS': False,         # handle fail of incomplete responses
-        'AUTOTHROTTLE_ENABLED': True,
-        'AUTOTHROTTLE_START_DELAY': 0.25,           # initial delay
-        'AUTOTHROTTLE_MAX_DELAY': 1,              # max delay
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,     # target concurrency
+        # 'RETRY_ENABLED': True,  
+        # 'RETRY_TIMES': 3,
+        # 'DOWNLOAD_DELAY': 0.8,                     # 50 milisecond delay between requests
+        # 'CONCURRENT_REQUESTS': 12,                  # max number of concurrent requests on all domains
+        # 'DOWNLOAD_TIMEOUT': 60,                     # max time in second to wait for a response
+        # 'REACTOR_THREADPOOL_MAXSIZE': 10,           # max size of twisted reactor thread pool
+        # 'LOG_LEVEL': 'INFO',                        # level of logging detail ((DEBUG, INFO, WARNING, ERROR, CRITICAL)): less termnal output
+        # 'COOKIES_ENABLED': False,                   # disable cookie handling to reduce overhead
+        # 'RETRY_ENABLED': False,                     # disable automatic retry of failed requests
+        # 'DOWNLOAD_FAIL_ON_DATALOSS': False,         # handle fail of incomplete responses
+        # 'AUTOTHROTTLE_ENABLED': True,
+        # 'AUTOTHROTTLE_START_DELAY': 0.25,           # initial delay
+        # 'AUTOTHROTTLE_MAX_DELAY': 1,              # max delay
+        # 'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,     # target concurrency
         'DOWNLOADER_MIDDLEWARES': {  
             'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  
             'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,  
@@ -43,7 +42,6 @@ class ProductsSpider(scrapy.Spider):
         self.token = token
         self.stop_crawling = False
 
-    @profile
     def start_requests(self):
         pagenum = 1
         while not self.stop_crawling:
@@ -71,10 +69,10 @@ class ProductsSpider(scrapy.Spider):
                 dont_filter=True
             )
             
-            pagenum += 1
             yield request
+            pagenum += 1
  
-    @profile
+
     def parse(self, response):
         data = json.loads(response.body)
         # check if a page does not exist.
@@ -101,7 +99,7 @@ class ProductsSpider(scrapy.Spider):
                 meta={'product': product_data},
             )
 
-    @profile
+
     def parse_product(self, response):
         target_product_title = response.css("#ContentPlaceHolder1_H1TitleDesktop::text").get()
         target_product_title = target_product_title.strip() if target_product_title is not None else None
@@ -152,7 +150,6 @@ class ProductsSpider(scrapy.Spider):
             
         )
     
-    @profile
     def similar_products_parse(self, response):
         product = response.meta["product"]
         
