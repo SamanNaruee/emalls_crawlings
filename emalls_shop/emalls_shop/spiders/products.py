@@ -9,7 +9,9 @@ from colorama import Fore
 class ProductsSpider(scrapy.Spider):
     """
     Usage:
-        scrapy crawl products -o all_products_of_a_shop.json -a token=50590
+        scrapy crawl products -o all_products_of_a_shop.json -a token=35193
+    Or:
+        scrapy crawl products -a token=35193
     """
     custom_settings = {
         'RETRY_ENABLED': True,  
@@ -140,6 +142,7 @@ class ProductsSpider(scrapy.Spider):
             "id": product_id,
             "startfrom": 11
         }
+        
                 
         yield scrapy.Request(
             url="https://emalls.ir/swservice/webshopproduct.ashx",
@@ -155,6 +158,7 @@ class ProductsSpider(scrapy.Spider):
         product = response.meta["product"]
         
         similars = json.loads(response.body)
-        similars = [sim for sim in similars if sim["sort_price_val"] != "9999999999"]
+        similars = [sim for sim in similars if sim["sort_price_val"] != "9999999999" and sim["ismojood"] is True]
         product['product_details']['similars'] = similars
+        
         yield product
