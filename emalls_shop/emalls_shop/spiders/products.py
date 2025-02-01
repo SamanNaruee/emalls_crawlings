@@ -96,11 +96,13 @@ class ProductsSpider(scrapy.Spider):
                 key: value for key, value in product.items() if key != 'link'
             })
             
+            # TODO check if the product is in inventory by check it's "price" and "target_product_price"
             yield scrapy.Request(
                 url=product_start_url,
                 callback=self.parse_product,
                 meta={'product': product_data},
             )
+            
 
 
     def parse_product(self, response):
@@ -158,7 +160,11 @@ class ProductsSpider(scrapy.Spider):
         product = response.meta["product"]
         
         similars = json.loads(response.body)
-        similars = [sim for sim in similars if sim["sort_price_val"] != "9999999999" and sim["ismojood"] is True]
+        similars = [
+                    sim for sim in similars if sim["sort_price_val"] != "9999999999"
+                    and sim["ismojood"] is True
+                ]
+        
         product['product_details']['similars'] = similars
         
-        yield product
+        yield product if product.get("price") != "0" and product.get("target_product_price") else None
